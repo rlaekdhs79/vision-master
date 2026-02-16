@@ -55,3 +55,32 @@ if st.button("문구 만들기"):
 
 # 주제 입력창
 st.text_input("주제 (예: 운동, 재테크)", key="subject_input")
+import streamlit as st
+from openai import OpenAI
+
+st.title("🚀 인스타 트렌드 AI 비서")
+
+# 1. 키 설정 (화면 입력 우선, 없으면 Secrets 확인)
+api_key = st.text_input("OpenAI API 키를 제공해 주세요", type="password")
+if not api_key:
+    api_key = st.secrets.get("OPENAI_API_KEY")
+
+if st.button("문구 만들기"):
+    if api_key and st.session_state.get('subject_input', ''):
+        try:
+            # 2. 최신 방식 클라이언트 생성
+            client = OpenAI(api_key=api_key)
+            
+            # 3. 최신 방식 답변 요청
+            response = client.chat.completions.create(
+                model="gpt-3.5-turbo",
+                messages=[{"role": "user", "content": f"{st.session_state.subject_input} 주제로 인스타 릴스 문구를 만들어 보세요"}]
+            )
+            st.success(response.choices[0].message.content)
+        except Exception as e:
+            st.error(f"에러가 일어났어요: {e}")
+    else:
+        st.warning("키와 주제를 모두 확인해 주세요.")
+
+# 주제 입력
+st.text_input("주제 (예: 운동, 재테크)", key="subject_input")
